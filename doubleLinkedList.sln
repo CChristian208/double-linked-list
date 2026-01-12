@@ -1,25 +1,743 @@
-﻿
-Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio Version 17
-VisualStudioVersion = 17.14.36429.23 d17.14
-MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "doubleLinkedList", "doubleLinkedList\doubleLinkedList.csproj", "{E02E62F5-0985-4D2E-A36D-B1E5D64DE0BB}"
-EndProject
-Global
-	GlobalSection(SolutionConfigurationPlatforms) = preSolution
-		Debug|Any CPU = Debug|Any CPU
-		Release|Any CPU = Release|Any CPU
-	EndGlobalSection
-	GlobalSection(ProjectConfigurationPlatforms) = postSolution
-		{E02E62F5-0985-4D2E-A36D-B1E5D64DE0BB}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{E02E62F5-0985-4D2E-A36D-B1E5D64DE0BB}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{E02E62F5-0985-4D2E-A36D-B1E5D64DE0BB}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{E02E62F5-0985-4D2E-A36D-B1E5D64DE0BB}.Release|Any CPU.Build.0 = Release|Any CPU
-	EndGlobalSection
-	GlobalSection(SolutionProperties) = preSolution
-		HideSolutionNode = FALSE
-	EndGlobalSection
-	GlobalSection(ExtensibilityGlobals) = postSolution
-		SolutionGuid = {42FC1D6D-1602-4C34-A770-32CD1C590E54}
-	EndGlobalSection
-EndGlobal
+// --------------------------------- COSTANTS ---------------------------------
+using System;
+using System.Xml.Linq;
+
+Random rand = new Random();
+string[] NAMES = { "Eva", "Ele", "Mia", "Bea", "Ugo" };
+
+// --------------------------------- MAIN PROGRAM ---------------------------------
+
+List l1 = new List();
+
+for (int i = 0; i < 10; i++)
+{
+    l1.addToHead(new Player(
+                            NAMES[rand.Next(NAMES.Length)],
+                            (rand.Next(10, 101)) / 10.0,
+                            rand.Next(1, 45)
+                            ));
+}
+Console.WriteLine($"l1: {l1}");
+Console.WriteLine();
+
+l1.insertNodeInIndex(10, new Player("CIA", 7, 40));
+Console.WriteLine($"l1: {l1}");
+
+//l1.fight(3, 5);
+//console.writeline();
+//l1.fight(3, 5);
+//console.writeline();
+//l1.fight(3, 5);
+//console.writeline();
+//l1.fight(3, 5);
+//console.writeline();
+//l1.fight(3, 5);
+//console.writeline();
+//l1.fight(3, 5);
+//console.writeline($"l1: {l1}");
+
+// --------------------------------- FUNCTIONS ---------------------------------
+
+int getNInRange(int inf, int sup, string qst)
+{
+    object x = "";
+    int n;
+    while(!(int.TryParse(Convert.ToString(x), out n) && n >= inf && n <= sup))
+    {
+        Console.Write($"{qst} ({inf}÷{sup}): ");
+        x = Console.ReadLine();
+    }
+    return n;
+}
+
+
+// --------------------------------- CLASSES ---------------------------------
+class Node
+{
+    protected Player p;
+    protected Node next;
+    protected Node pre;
+
+    public Node()
+    {
+        this.p = new Player();
+        this.next = null;
+        this.pre = null;
+    }
+
+    public Node(object p, object next, object pre)
+    {
+        setPlayer(p);
+        setNext(next);
+        setPre(pre);
+    }
+
+    public Node(object node)
+    {
+        if (node is Node)
+        {
+            setPlayer(((Node)node).getPlayer());
+            setNext(((Node)node).getNext());
+            setPre(((Node)node).getPre());
+        }
+        else if (node is Player)
+        {
+            setPlayer(node);
+            setNext(null);
+            setPre(null);
+        }
+        else
+        {
+            this.p = new Player();
+            this.next = null;
+            this.pre = null;
+        }
+    }
+
+    public void setPlayer(object p)
+    {
+        if (p is Player)
+        {
+            this.p = (Player)p;
+        }
+        else
+        {
+            this.p = new Player();
+        }
+    }
+
+    public void setNext(object next)
+    {
+        if (next is Node)
+        {
+            this.next = (Node)next;
+        }
+        else
+        {
+            this.next = null;
+        }
+    }
+
+    public void setPre(object pre)
+    {
+        if (pre is Node)
+        {
+            this.pre = (Node)pre;
+        }
+        else
+        {
+            this.pre = null;
+        }
+    }
+
+    public Player getPlayer() { return this.p; }
+
+    public Node getNext() { return this.next; }
+
+    public Node getPre() { return this.pre; }
+
+    public override string ToString()
+    {
+        return $"\n[{this.p}] <--> {this.next}";
+    }
+
+    public void print()
+    {
+        Console.WriteLine($"[{this.p}]");
+    }
+}
+
+class List
+{
+    protected Node head;
+    protected Node tail;
+
+    public List()
+    {
+        this.head = null;
+        this.tail = null;
+    }
+
+    public List(object node)
+    {
+        if (node is Player)
+            node = new Node(node);
+        this.setHead(node);
+        this.setTail(node);
+    }
+
+    public void setHead(object node)
+    {
+        if (node is Node)
+        {
+            this.head = (Node)node;
+        }
+        else
+        {
+            this.head = null;
+        }
+        this.head.setPre(null);
+    }
+
+    public void setTail(object node)
+    {
+        if (node is Node)
+        {
+            this.tail = (Node)node;
+        }
+        else
+        {
+            this.tail = null;
+        }
+        this.tail.setNext(null);
+    }
+
+    public Node getHead() { return this.head; }
+
+    public Node getTail() { return this.tail; }
+
+
+    //-----PRINT-----
+
+    public override string ToString()
+    {
+        return $"null <--> {this.head} null";
+    }
+
+
+    //-----METHODS-----
+
+    static int getNInRange(int inf, int sup, object qst)
+    {
+        object x = "";
+        int n;
+        while (!(int.TryParse(Convert.ToString(x), out n) && n >= inf && n <= sup))
+        {
+            Console.Write($"{qst} ({inf}÷{sup}): ");
+            x = Console.ReadLine();
+        }
+        return n;
+    }
+
+    public int countNodes()
+    {
+        int count = 0;
+        for (Node flow = this.head; flow != null; flow = flow.getNext())
+        {
+            count++;
+        }
+        return count;
+    }
+
+    public void addToHead(object node)
+    {
+        if (node is Node)
+        {
+            if (this.head == null)
+            {
+                this.head = this.tail = (Node)node;
+            }
+            else
+            {
+                ((Node)node).setNext(this.head);
+                this.head.setPre(node);
+                this.setHead(node);
+            }
+        }
+        else if (node is Player)
+        {
+            addToHead(new Node(node));
+        }
+        else
+        {
+            Console.WriteLine("There's nothing i can do.");
+        }
+    }
+
+    public void addToTail(object node)
+    {
+        if (node is Node)
+        {
+            if (this.head == null)
+            {
+                this.head = this.tail = (Node)node;
+            }
+            else
+            {
+                this.tail.setNext(node);
+                ((Node)node).setPre(this.tail);
+                this.setTail(node);
+            }
+        }
+        else if (node is Player)
+        {
+            addToTail(new Node(node));
+        }
+        else
+        {
+            Console.WriteLine("There's nothing i can do.");
+        }
+    }
+
+    public void insertNodeInIndex(int index, object node)
+    {
+        if (node is Node)
+        {
+            if (index < 0 || index > countNodes())
+            {
+                Console.WriteLine("Index out of bound.");
+            } else
+            {
+                if (index == 0)
+                {
+                    addToHead(node);
+                } else if (index == countNodes())
+                {
+                    addToTail(node);
+                } else
+                {
+                    Node flow = this.head;
+                    for (int count = 0; count < index; count++)
+                    {
+                        flow = flow.getNext();
+                    }
+                    ((Node)node).setNext(flow);
+                    ((Node)node).setPre(flow.getPre());
+                    flow.getPre().setNext(node);
+                    flow.setPre(node);
+
+                    //con count < index - 1
+                    //((Node)node).setNext(flow.getNext());
+                    //((Node)node).setPre(flow);
+                    //flow.getNext().setPre(node);
+                    //flow.setNext(node);
+                }
+            }
+        } else if (node is Player)
+        {
+            insertNodeInIndex(index, new Node(node));
+        } else
+        {
+            Console.WriteLine("There's nothing i can do.");
+        }
+    }
+
+    public void clearList()
+    {
+        if (this.head == null)
+        {
+            Console.WriteLine("Empty list.");
+        } else
+        {
+            this.head = null;
+        }
+    }
+
+    public void deleteHead()
+    {
+        if (this.head == null)
+        {
+            Console.WriteLine("Empty list.");
+        } else if (this.head == this.tail)
+        {
+            clearList();
+        } else
+        {
+            this.setHead(this.head.getNext());
+        }
+    }
+
+    public void deleteTail()
+    {
+        if (this.head == null)
+        {
+            Console.WriteLine("Empty list.");
+        }
+        else if (this.head == this.tail)
+        {
+            clearList();
+        }
+        else
+        {
+            this.setTail(this.tail.getPre());
+        }
+    }
+
+    public Node getNodeByIndex(int index)
+    {
+        if (index < 0 || index > countNodes() - 1)
+        {
+            Console.WriteLine("Index out of bound.");
+            return null;
+        } else
+        {
+            Node flow = this.head;
+            for (int count = 0; count < index; count++)
+            {
+                flow = flow.getNext();
+            }
+            return flow;
+        }
+    }
+
+    public void deleteNodeByIndex(int index)
+    {
+        if (index < 0 || index > countNodes() - 1)
+        {
+            Console.WriteLine("Index out of bound.");
+        } else
+        {
+            if (this.head == null)
+            {
+                Console.WriteLine("Empty list.");
+            } else if (this.head == this.tail)
+            {
+                clearList();
+            } else if (index == countNodes() - 1)
+            {
+                deleteTail();
+            } else
+            {
+                Node flow = getNodeByIndex(index);
+                flow.getPre().setNext(flow.getNext());
+                flow.getNext().setPre(flow.getPre());
+            }
+        }
+    }
+
+    public Node pop(int index)      // estrae ed elimina un nodo
+    {
+        Node node = getNodeByIndex(index);
+        deleteNodeByIndex(index);
+        return node;
+    }
+
+    public void swap(int index1, int index2)
+    {
+        if (index1 < 0 || index2 < 0 || index1 > countNodes() - 1 || index2 > countNodes() - 1 || index1 == index2)
+        {
+            Console.WriteLine("Index out of bound/Error.");
+        } else
+        {
+            if (index1 < index2)
+            {
+                (index1, index2) = (index2, index1);
+            }
+
+            Node temp1 = getNodeByIndex(index1);
+            Node temp2 = getNodeByIndex(index2);
+
+            deleteNodeByIndex(index1);
+            deleteNodeByIndex(index2);
+
+            insertNodeInIndex(index2, temp1);
+            insertNodeInIndex(index1, temp2);
+        }
+    }
+
+    public void swap2(int index1, int index2)
+    {
+        if (index1 < 0 || index2 < 0 || index1 > countNodes() - 1 || index2 > countNodes() - 1 || index1 == index2)
+        {
+            Console.WriteLine("Index out of bound/Error.");
+        }
+        else
+        {
+            if (index1 > index2)
+                (index1, index2) = (index2, index1);
+
+            insertNodeInIndex(index1, pop(index2));
+            if (index1 + 1 != index2)                       // se i nodi sono adiacenti lo scambio è già stato effettuato
+                insertNodeInIndex(index2, pop(index1 + 1));
+        }
+    }
+
+    public void sortList()
+    {
+        if (countNodes() <= 1)
+        {
+            Console.WriteLine("Empty list/one node.");
+        } else
+        {
+            Console.WriteLine("+----------------------+");
+            Console.WriteLine("|SORT THE LIST REGARD: |");
+            Console.WriteLine("+----------------------+");
+            Console.WriteLine("|1. NAME               |");
+            Console.WriteLine("|2. SPEED              |");
+            Console.WriteLine("|3. STRENGHT           |");
+            Console.WriteLine("+----------------------+");
+            int field = getNInRange(1, 3, "Insert a choice");
+            Console.WriteLine();
+
+            Console.WriteLine("+---------------+");
+            Console.WriteLine("|TYPE OF SORT:  |");
+            Console.WriteLine("+---------------+");
+            Console.WriteLine("|1. ASCENDING   |");
+            Console.WriteLine("|2. DESCENDING  |");
+            Console.WriteLine("+---------------+");
+            int type = getNInRange(1, 2, "Insert a choice");
+            Console.WriteLine();
+
+            switch (field)
+            {
+                case 1:
+                    if (type == 1)
+                    {
+                        bool flag = true;
+                        for (int i = 0; i < countNodes() - 1; i++)
+                        {
+                            flag = true;
+                            for (int j = 0; j < countNodes() - 1 - i; j++)
+                            {
+                                if (getNodeByIndex(j).getPlayer().getName().CompareTo(getNodeByIndex(j + 1).getPlayer().getName()) > 0)
+                                {
+                                    flag = false;
+                                    swap2(j, j + 1);
+                                }
+                            }
+                            if (flag)
+                            {
+                                break;
+                            }
+                        }
+                    } 
+                    else
+                    {
+                        bool flag = true;
+                        for (int i = 0; i < countNodes() - 1; i++)
+                        {
+                            flag = true;
+                            for (int j = 0; j < countNodes() - 1 - i; j++)
+                            {
+                                if (getNodeByIndex(j).getPlayer().getName().CompareTo(getNodeByIndex(j + 1).getPlayer().getName()) < 0)
+                                {
+                                    flag = false;
+                                    swap2(j, j + 1);
+                                }
+                            }
+                            if (flag)
+                            {
+                                break;
+                            }
+                        }
+                    }
+                break;
+
+                case 2:
+                    if (type == 1)
+                    {
+                        bool flag = true;
+                        for (int i = 0; i < countNodes() - 1; i++)
+                        {
+                            flag = true;
+                            for (int j = 0; j < countNodes() - 1 - i; j++)
+                            {
+                                if (getNodeByIndex(j).getPlayer().getSpeed() > getNodeByIndex(j + 1).getPlayer().getSpeed())
+                                {
+                                    flag = false;
+                                    swap2(j, j + 1);
+                                }
+                            }
+                            if (flag)
+                            {
+                                break;
+                            }
+                        }
+                    }
+                    else
+                    {
+                        bool flag = true;
+                        for (int i = 0; i < countNodes() - 1; i++)
+                        {
+                            flag = true;
+                            for (int j = 0; j < countNodes() - 1 - i; j++)
+                            {
+                                if (getNodeByIndex(j).getPlayer().getSpeed() < getNodeByIndex(j + 1).getPlayer().getSpeed())
+                                {
+                                    flag = false;
+                                    swap2(j, j + 1);
+                                }
+                            }
+                            if (flag)
+                            {
+                                break;
+                            }
+                        }
+                    }
+                    break;
+
+                case 3:
+                    if (type == 1)
+                    {
+                        bool flag = true;
+                        for (int i = 0; i < countNodes() - 1; i++)
+                        {
+                            flag = true;
+                            for (int j = 0; j < countNodes() - 1 - i; j++)
+                            {
+                                if (getNodeByIndex(j).getPlayer().getStrenght() > getNodeByIndex(j + 1).getPlayer().getStrenght())
+                                {
+                                    flag = false;
+                                    swap2(j, j + 1);
+                                }
+                            }
+                            if (flag)
+                            {
+                                break;
+                            }
+                        }
+                    }
+                    else
+                    {
+                        bool flag = true;
+                        for (int i = 0; i < countNodes() - 1; i++)
+                        {
+                            flag = true;
+                            for (int j = 0; j < countNodes() - 1 - i; j++)
+                            {
+                                if (getNodeByIndex(j).getPlayer().getStrenght() < getNodeByIndex(j + 1).getPlayer().getStrenght())
+                                {
+                                    flag = false;
+                                    swap2(j, j + 1);
+                                }
+                            }
+                            if (flag)
+                            {
+                                break;
+                            }
+                        }
+                    }
+                    break;
+            }
+
+        }
+    }
+
+    public void reversePrint()
+    {
+        Node flow = this.tail;
+        for (int i = countNodes() - 1; i >= 0; i--)
+        {
+            flow.print();
+            flow = flow.getPre();
+        }
+    }
+
+    public void reverseList()
+    {
+        for (int i = 0; i < countNodes()/2; i++)
+        {
+            swap2(i, countNodes() - i - 1);
+        }
+    }
+
+    public void fight(int index1, int index2)
+    {
+        if (index1 < 0 || index2 < 0 || index1 > countNodes() - 1 || index2 > countNodes() - 1 || index1 == index2) 
+        {
+            Console.WriteLine("Index out of bound/error.");
+        } else
+        {
+            if (index1 > index2)
+                (index1, index2) = (index2, index1);
+
+            this.getNodeByIndex(index1).print();
+            this.getNodeByIndex(index2).print();
+
+            if ((this.getNodeByIndex(index1).getPlayer().getSpeed() - (int)this.getNodeByIndex(index2).getPlayer().getStrenght()) <= 0)
+            {
+                this.getNodeByIndex(index1).getPlayer().setSpeed(0);
+            }
+            else
+            {
+                this.getNodeByIndex(index1).getPlayer().setSpeed(this.getNodeByIndex(index1).getPlayer().getSpeed() - (int)this.getNodeByIndex(index2).getPlayer().getStrenght());
+            }
+
+            if ((this.getNodeByIndex(index2).getPlayer().getSpeed() - (int)this.getNodeByIndex(index1).getPlayer().getStrenght()) <= 0)
+            {
+                this.getNodeByIndex(index2).getPlayer().setSpeed(0);
+            }
+            else
+            {
+                this.getNodeByIndex(index2).getPlayer().setSpeed(this.getNodeByIndex(index2).getPlayer().getSpeed() - (int)this.getNodeByIndex(index1).getPlayer().getStrenght());
+            }
+
+            Console.WriteLine();
+            this.getNodeByIndex(index1).print();
+            this.getNodeByIndex(index2).print();
+
+            if (this.getNodeByIndex(index2).getPlayer().getSpeed() == 0)
+                this.deleteNodeByIndex(index2);
+
+            if (this.getNodeByIndex(index1).getPlayer().getSpeed() == 0)
+                this.deleteNodeByIndex(index1);
+        }
+    }   
+}
+
+class Player
+{
+    protected string name;
+    protected double strenght;  // 1.0 ÷ 10.0
+    protected int speed;        // 1 ÷ 100
+
+    public Player()
+    {
+        setName(" ");
+        setStrenght(0);
+        setSpeed(0);
+    }
+
+    public Player(string name, object strenght, object speed)
+    {
+        setName(name);
+        setStrenght(strenght);
+        setSpeed(speed);
+    }
+
+    public void setName(string name)
+    {
+        while (name.Length > 3)
+        {
+            Console.Write("Name too long insert it again: ");
+            name = Console.ReadLine();
+        }
+        this.name = name;
+    }
+
+    public void setSpeed(object speed)
+    {
+        while (!(int.TryParse(Convert.ToString(speed), out this.speed) && this.speed >= 0 && this.speed <= 44))
+        {
+            Console.Write("Insert a correct value of speed(1÷44): ");
+            speed = Console.ReadLine();
+        }
+    }
+
+    public void setStrenght(object strenght)
+    {
+        while (!(double.TryParse(Convert.ToString(strenght), out this.strenght) && ((this.strenght * 10) / 10) == this.strenght && this.strenght >= 1.0 && this.strenght <= 10.0))
+        {
+            Console.Write("Insert a correct value of strenght(1÷10): ");
+            strenght = Console.ReadLine();
+        }
+    }
+
+    public string getName() { return this.name; }
+
+    public double getStrenght() { return this.strenght; }
+
+    public int getSpeed() { return this.speed; }
+
+    public override string ToString()
+    {
+        return $"{this.name,-3} | {this.strenght,4:F1} | {this.speed,2}";
+    }
+
+    public override bool Equals(object? obj)
+    {
+        if (obj == null || obj is not Player)
+            return false;
+        return this.getName() == ((Player)obj).getName() && Math.Abs(this.strenght - ((Player)obj).getStrenght()) < 0.01 && this.getSpeed() == ((Player)obj).getSpeed();
+    }
+}
